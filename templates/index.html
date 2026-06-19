@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fetal Plane Classifier — Two-Stage Anatomy Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark">FP</span>
+      <span class="brand-name">Fetal Plane Classifier</span>
+    </div>
+    <div class="header-meta">
+      <span class="meta-item">Stage 1 — Standard / Other</span>
+      <span class="meta-dot">·</span>
+      <span class="meta-item">Stage 2 — 7-class anatomy</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <p class="eyebrow">Two-stage cascade · ResNet50 · Grad-CAM interpretability</p>
+    <h1>See what the model sees<br>before you trust what it says.</h1>
+    <p class="hero-sub">
+      Upload an obstetric ultrasound frame. The first model decides whether a clean
+      anatomical plane is present at all. If it is, a second model identifies which
+      one — and shows exactly where it looked to decide.
+    </p>
+  </section>
+
+  <section class="workspace">
+
+    <div class="scanner" id="scanner">
+      <div class="scanner-bezel">
+        <div class="scanner-screen" id="dropzone">
+          <div class="scanline"></div>
+          <div class="scanner-content" id="scannerContent">
+            <svg class="probe-icon" width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path d="M20 4 L20 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="20" cy="28" r="6" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 36 L26 36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p class="scanner-instruction">Drop a sonogram frame here</p>
+            <p class="scanner-sub">or click to browse · PNG / JPG</p>
+          </div>
+          <img id="previewImg" class="preview-img" alt="" />
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/png, image/jpeg" hidden>
+      <div class="scanner-controls">
+        <button class="btn-primary" id="analyzeBtn" disabled>Analyze frame</button>
+        <button class="btn-ghost" id="resetBtn" style="display:none;">Choose different image</button>
+      </div>
+    </div>
+
+    <div class="results" id="results" hidden>
+
+      <div class="stage-block" id="stage1Block">
+        <div class="stage-label">
+          <span class="stage-num">Stage 1</span>
+          <span class="stage-title">Plane detection</span>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-tag" id="stage1Tag">—</span>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar"><div class="confidence-fill" id="stage1Fill"></div></div>
+            <span class="confidence-num" id="stage1Num">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-block" id="stage2Block" hidden>
+        <div class="stage-label">
+          <span class="stage-num">Stage 2</span>
+          <span class="stage-title">Anatomy classification</span>
+        </div>
+        <div class="verdict-row">
+          <span class="verdict-tag verdict-tag--anatomy" id="stage2Tag">—</span>
+        </div>
+        <div class="confidence-list" id="confidenceList"></div>
+      </div>
+
+      <div class="gradcam-block" id="gradcamBlock" hidden>
+        <div class="stage-label">
+          <span class="stage-num">Grad-CAM</span>
+          <span class="stage-title">Where the model looked</span>
+        </div>
+        <div class="gradcam-images">
+          <figure>
+            <img id="originalImg" alt="Original frame" />
+            <figcaption>Original</figcaption>
+          </figure>
+          <figure>
+            <img id="overlayImg" alt="Grad-CAM overlay" />
+            <figcaption>Attention overlay</figcaption>
+          </figure>
+        </div>
+        <p class="gradcam-note">
+          Warmer regions contributed more to the prediction. Use this as a sanity check,
+          not a diagnosis — the model can be confidently wrong.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="loading" id="loadingState" hidden>
+      <div class="loading-bars"><span></span><span></span><span></span><span></span></div>
+      <p id="loadingText">Running Stage 1…</p>
+    </div>
+
+  </section>
+
+  <section class="about">
+    <div class="about-grid">
+      <div class="about-col">
+        <h3>Why two stages</h3>
+        <p>Detecting whether a frame is usable and identifying which anatomy it shows are
+        different judgments. Separating them keeps each model's features focused, and
+        makes failures diagnosable — a wrong answer is either "missed a real plane" or
+        "confused two real planes," never both at once.</p>
+      </div>
+      <div class="about-col">
+        <h3>What the model gets wrong</h3>
+        <p>Trans-ventricular and trans-thalamic brain planes are adjacent slices of a
+        continuous sweep. The model confuses them roughly 29% of the time on held-out
+        data — and Grad-CAM shows it's looking in the right neighborhood when it does,
+        not at noise. The ambiguity is partly in the anatomy itself.</p>
+      </div>
+      <div class="about-col">
+        <h3>Limitations</h3>
+        <p>Trained on the FETAL_PLANES_DB dataset (~12,400 images, ~1,792 patients).
+        Not validated for clinical use. Stage 1 catches non-standard frames about 87%
+        of the time — false passes are possible and Stage 2's output should be read
+        with that in mind.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Built on FETAL_PLANES_DB · ResNet50 + Grad-CAM · For research and portfolio use only</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
