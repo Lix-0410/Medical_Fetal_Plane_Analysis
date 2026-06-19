@@ -18,10 +18,10 @@ Splitting this into two models mirrors how a sonographer actually works, and mak
                     Input ultrasound frame
                               │
                     ┌─────────▼──────────┐
-                    │   STAGE 1            │
-                    │   ResNet50 (binary)  │
-                    │   Standard vs Other   │
-                    └─────────┬───────────┘
+                    │   STAGE 1          │
+                    │   ResNet50 (binary)│
+                    │   Standard vs Other│
+                    └─────────┬──────────┘
                               │
               ┌───────────────┴────────────────┐
               │                                  │
@@ -29,11 +29,11 @@ Splitting this into two models mirrors how a sonographer actually works, and mak
               │                                  │
               ▼                                  ▼
       Final: Other                    ┌──────────────────────┐
-      (no further                     │   STAGE 2              │
-       processing)                    │   ResNet50 (7-class)   │
-                                       │   Anatomy classifier    │
-                                       └──────────┬─────────────┘
-                                                  │
+      (no further                     │   STAGE 2            │
+       processing)                    │   ResNet50 (7-class) │
+                                      │   Anatomy classifier │
+                                      └──────────┬───────────┘
+                                                 │
                                        One of 7 standard planes:
                                        Brain (×3 sub-planes),
                                        Abdomen, Femur, Thorax, Cervix
@@ -45,24 +45,22 @@ Splitting this into two models mirrors how a sonographer actually works, and mak
 
 **FETAL_PLANES_DB** — 12,400 ultrasound images from 1,792 patients, collected across three ultrasound machines (Voluson E6, Voluson S10, Aloka) by multiple operators.
 
-| Class | Images | Notes |
-|---|---|---|
-| Other | 4,356 | Non-standard / transitional frames (includes 143 ambiguous brain sweeps, merged in) |
-| Fetal thorax | 1,718 | |
-| Brain — Trans-thalamic | 1,638 | Primary biometric brain plane |
-| Maternal cervix | 1,626 | |
-| Fetal femur | 1,040 | |
-| Brain — Trans-cerebellum | 714 | |
-| Fetal abdomen | 711 | Smallest standard class |
-| Brain — Trans-ventricular | 597 | |
+| Class | Images | 
+|---|---|
+| Other | 4,356 | 
+| Fetal thorax | 1,718 |
+| Brain — Trans-thalamic | 1,638 |
+| Maternal cervix | 1,626 |
+| Fetal femur | 1,040 |
+| Brain — Trans-cerebellum | 714 | 
+| Fetal abdomen | 711 |
+| Brain — Trans-ventricular | 597 |
 
 ### Splitting methodology
 
 - The dataset's original train/test split was preserved as-is.
 - A validation set was carved out of the training pool at **patient level** (not image level) to prevent leakage — multiple frames from the same patient never appear across different splits.
 - An 85/15 split was used instead of the more typical 80/20, because the smallest class (Fetal abdomen) had only 9 patients in the training pool; 85/15 was the minimum adjustment needed to guarantee every class had representation in validation.
-- Zero patient overlap between train, validation, and test was explicitly verified.
-
 ---
 
 ## Models
