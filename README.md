@@ -161,6 +161,7 @@ PyTorch · torchvision (ResNet50) · Flask · Grad-CAM · scikit-learn (evaluati
 ## Dataset citation
 
 FETAL_PLANES_DB — publicly available fetal ultrasound plane classification dataset.
+Visit https://www.kaggle.com/datasets/amy0410/fetal-preprocessed-dataset/data for the dataset with different classes
 
 ---
 
