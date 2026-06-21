@@ -146,7 +146,7 @@ fetal-plane-classifier/
 ## Running locally
 
 ```bash
-git clone https://github.com/<your-username>/Medical_Fetal_Plane_Analysis.git
+git clone https://github.com/Lix-0410/Medical_Fetal_Plane_Analysis.git
 cd Medical_Fetal_Plane_Analysis
 pip install -r requirements.txt
 python app.py
