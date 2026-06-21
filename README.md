@@ -1,5 +1,7 @@
 # Fetal Plane Classifier
 
+**🔗 Live demo: [huggingface.co/spaces/Lix0410/fetal-plane-classifier](https://huggingface.co/spaces/Lix0410/fetal-plane-classifier)**
+
 A two-stage deep learning pipeline that classifies fetal ultrasound images by anatomical plane, built with an emphasis on interpretability rather than raw accuracy alone. Given a single ultrasound frame, the system first determines whether it shows a clean, standard anatomical view at all — and only if so, identifies which of seven anatomical planes it represents. Every prediction is paired with a Grad-CAM heatmap so the model's reasoning can be visually inspected rather than taken on faith.
 
 This project was built end-to-end: dataset preprocessing, model design, training, evaluation, interpretability analysis, and deployment as a Flask web app.
